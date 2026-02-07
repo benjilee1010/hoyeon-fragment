@@ -43,7 +43,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 1.25rem 2rem;
+  padding: 1.5rem 2rem;
   background: var(--bg);
   width: 100%;
 }
