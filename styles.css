@@ -692,7 +692,14 @@ body.edit-mode .gallery:not(.gallery--untitled) .artwork-title:not(.artwork-titl
   margin: 0;
 }
 
-/* Responsive */
+/* Responsive – 2 columns on tablet and mobile */
+@media (max-width: 1024px) {
+  .gallery {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
 @media (max-width: 768px) {
   .nav {
     flex-wrap: wrap;
@@ -724,11 +731,6 @@ body.edit-mode .gallery:not(.gallery--untitled) .artwork-title:not(.artwork-titl
   .nav-toggle {
     display: flex;
     z-index: 101;
-  }
-
-  .gallery {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
   }
 
   .contact-content {
