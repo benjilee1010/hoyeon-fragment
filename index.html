@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <title>Hoyeon Lee's Fragment | Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <button type="button" class="nav-edit-btn" id="editModeBtn" title="Edit artwork titles">Edit</button>
+    <div class="nav-title-bar">
+      <a href="index.html" class="nav-logo" id="navLogo">Hoyeon Lee's Fragment</a>
+    </div>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="index.html" class="active" id="navLinkArtworks">Artworks</a></li>
+        <li><a href="photography.html" id="navLinkPhotography">Photography</a></li>
+        <li><a href="contact.html" id="navLinkContact">Contact</a></li>
+      </ul>
+      <button class="nav-toggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <section class="gallery" id="artworksGallery">
+      <article class="artwork">
+        <div class="artwork-frame">
+          <img src="artworks/Watercolor.jpg" alt="">
+        </div>
+        <h3 class="artwork-title artwork-title--hidden">Unnamed</h3>
+      </article>
+
+      <article class="artwork">
+        <div class="artwork-frame artwork-frame--rotate-cw">
+          <img src="artworks/HLAOTVE.png" alt="HLAOTVE">
+        </div>
+        <h3 class="artwork-title">HLAOTVE</h3>
+      </article>
+
+      <article class="artwork">
+        <div class="artwork-frame artwork-frame--rotate-cw">
+          <img src="artworks/Mother.png" alt="Mother">
+        </div>
+        <h3 class="artwork-title">Mother</h3>
+      </article>
+
+      <article class="artwork">
+        <div class="artwork-frame artwork-frame--rotate-cw">
+          <img src="artworks/Unnamed.png" alt="">
+        </div>
+        <h3 class="artwork-title artwork-title--hidden">Unnamed</h3>
+      </article>
+
+      <article class="artwork">
+        <div class="artwork-frame">
+          <img src="artworks/Play_with_me.jpg" alt="Play with me?">
+        </div>
+        <h3 class="artwork-title">Play with me?</h3>
+      </article>
+
+      <article class="artwork">
+        <div class="artwork-frame">
+          <img src="artworks/hair.jpg" alt="hair">
+        </div>
+        <h3 class="artwork-title">hair</h3>
+      </article>
+
+      <article class="artwork">
+        <div class="artwork-frame">
+          <img src="artworks/Final_Bloom.jpg" alt="">
+        </div>
+        <h3 class="artwork-title artwork-title--hidden">Unnamed</h3>
+      </article>
+
+      <article class="artwork">
+        <div class="artwork-frame">
+          <img src="artworks/Noir.jpg" alt="">
+        </div>
+        <h3 class="artwork-title artwork-title--hidden">Unnamed</h3>
+      </article>
+
+      <article class="artwork">
+        <div class="artwork-frame">
+          <img src="artworks/Kei.jpg" alt="Kei">
+        </div>
+        <h3 class="artwork-title">Kei</h3>
+      </article>
+
+      <article class="artwork">
+        <div class="artwork-frame">
+          <img src="artworks/I_Could_I_Would.jpg" alt="I Could I Would">
+        </div>
+        <h3 class="artwork-title">I Could I Would</h3>
+      </article>
+
+      <article class="artwork">
+        <div class="artwork-frame">
+          <img src="artworks/Sometimes_i.jpg" alt="Sometimes i">
+        </div>
+        <h3 class="artwork-title">Sometimes i</h3>
+      </article>
+
+      <article class="artwork">
+        <div class="artwork-frame">
+          <img src="artworks/Lamb.jpg" alt="Lamb">
+        </div>
+        <h3 class="artwork-title">Lamb</h3>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p id="footerText">&copy; 2025 Hoyeon Lee's Fragment. All rights reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
