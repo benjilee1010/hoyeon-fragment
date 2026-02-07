@@ -1,3 +1,42 @@
+// Lightbox – fullscreen on image click
+(function initLightbox() {
+  const lightbox = document.createElement('div');
+  lightbox.className = 'lightbox';
+  lightbox.innerHTML = '<div class="lightbox__inner"><button type="button" class="lightbox__close" aria-label="Close">&times;</button><img class="lightbox__img" src="" alt=""></div>';
+  document.body.appendChild(lightbox);
+  const img = lightbox.querySelector('.lightbox__img');
+  const closeBtn = lightbox.querySelector('.lightbox__close');
+
+  function open(src, rotationClass) {
+    img.src = src;
+    img.alt = '';
+    img.className = 'lightbox__img';
+    if (rotationClass) img.classList.add(rotationClass);
+    lightbox.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function close() {
+    lightbox.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) close(); });
+  closeBtn.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+
+  document.querySelectorAll('.gallery .artwork-frame').forEach(frame => {
+    frame.style.cursor = 'pointer';
+    frame.addEventListener('click', (e) => {
+      if (e.target.closest('.artwork-rotate-btn')) return;
+      const im = frame.querySelector('img');
+      if (!im || !im.src) return;
+      const rot = frame.classList.contains('artwork-frame--rotate-cw') ? 'lightbox__img--rotate-cw' :
+        frame.classList.contains('artwork-frame--rotate-180') ? 'lightbox__img--rotate-180' :
+        (frame.classList.contains('artwork-frame--rotate-270') || frame.classList.contains('artwork-frame--rotate-ccw')) ? 'lightbox__img--rotate-270' : null;
+      open(im.src, rot);
+    });
+  });
+})();
+
 // Mobile navigation toggle
 document.querySelectorAll('.nav-toggle').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -78,13 +117,8 @@ function applyGalleryOrder(gallery) {
     if (img) {
       bySrc[img.getAttribute('src')] = a;
       const frame = a.querySelector('.artwork-frame');
-      const stored = edits[img.getAttribute('src')];
-      if (frame && stored?.rotation) applyRotation(frame, stored.rotation);
-      else if (frame) {
-        const fromHtml = frame.classList.contains('artwork-frame--rotate-cw') ? '90' :
-          frame.classList.contains('artwork-frame--rotate-180') ? '180' :
-          (frame.classList.contains('artwork-frame--rotate-270') || frame.classList.contains('artwork-frame--rotate-ccw')) ? '270' : null;
-        if (fromHtml) saveEdit(img.getAttribute('src'), 'rotation', fromHtml);
+      if (frame) {
+        applyRotation(frame, '0');
       }
     }
   });
@@ -325,6 +359,15 @@ function initEditMode() {
   if (!btn) return;
 
   loadStoredEdits();
+  const edits = getStoredEdits();
+  let rotationCleared = false;
+  for (const key of Object.keys(edits)) {
+    if (edits[key] && typeof edits[key].rotation !== 'undefined') {
+      delete edits[key].rotation;
+      rotationCleared = true;
+    }
+  }
+  if (rotationCleared) localStorage.setItem(STORAGE_KEY, JSON.stringify(edits));
   updateUnnamedVisibility();
   [document.getElementById('artworksGallery'), document.getElementById('photographyGallery')].forEach(g => {
     if (g) applyGalleryOrder(g);
