@@ -643,6 +643,8 @@ body.edit-mode .artwork.artwork-dragging {
 @media (max-width: 768px) {
   .nav {
     flex-wrap: wrap;
+    padding-top: 1.75rem;
+    padding-bottom: 1.75rem;
   }
 
   .nav-links {
