@@ -2,20 +2,49 @@
 (function initLightbox() {
   const lightbox = document.createElement('div');
   lightbox.className = 'lightbox';
-  lightbox.innerHTML = '<div class="lightbox__inner"><button type="button" class="lightbox__close" aria-label="Close">&times;</button><img class="lightbox__img" src="" alt=""><p class="lightbox__title"></p></div>';
+  lightbox.innerHTML = '<div class="lightbox__inner">' +
+    '<button type="button" class="lightbox__close" aria-label="Close">&times;</button>' +
+    '<div class="lightbox__img-wrap"><img class="lightbox__img" src="" alt=""></div>' +
+    '<aside class="lightbox__info">' +
+    '<p class="lightbox__info-row"><span class="lightbox__info-label">Title</span><span class="lightbox__info-title"></span></p>' +
+    '<p class="lightbox__info-row"><span class="lightbox__info-label">Price</span><span class="lightbox__info-price"></span></p>' +
+    '<p class="lightbox__info-row"><span class="lightbox__info-label">Availability</span><span class="lightbox__info-availability"></span></p>' +
+    '</aside>' +
+    '<p class="lightbox__title"></p><p class="lightbox__sold"></p></div>';
   document.body.appendChild(lightbox);
   const img = lightbox.querySelector('.lightbox__img');
   const closeBtn = lightbox.querySelector('.lightbox__close');
   const titleEl = lightbox.querySelector('.lightbox__title');
+  const soldEl = lightbox.querySelector('.lightbox__sold');
+  const infoTitle = lightbox.querySelector('.lightbox__info-title');
+  const infoPrice = lightbox.querySelector('.lightbox__info-price');
+  const infoAvailability = lightbox.querySelector('.lightbox__info-availability');
 
-  function open(src, rotationClass, title) {
+  function open(src, rotationClass, title, price, sold, isPhotography) {
     img.src = src;
     img.alt = title || '';
     img.className = 'lightbox__img';
     if (rotationClass) img.classList.add(rotationClass);
-    if (titleEl) {
-      titleEl.textContent = title || '';
-      titleEl.style.display = title ? 'block' : 'none';
+    lightbox.classList.toggle('lightbox--photography', !!isPhotography);
+    if (!isPhotography) {
+      const titleStr = (title && title.trim()) ? title.trim() : '';
+      const priceStr = (price && price.trim()) ? price.trim() : '';
+      if (infoTitle) infoTitle.textContent = titleStr || '—';
+      if (infoPrice) infoPrice.textContent = priceStr || '—';
+      if (infoAvailability) {
+        infoAvailability.textContent = sold ? 'SOLD' : 'Available';
+        infoAvailability.classList.toggle('lightbox__info-availability--sold', !!sold);
+      }
+      if (titleEl) {
+        const combined = priceStr ? (titleStr ? titleStr + ' - ' + priceStr : priceStr) : titleStr;
+        titleEl.textContent = combined;
+        titleEl.classList.toggle('lightbox__title--sold', priceStr.toUpperCase() === 'SOLD');
+        titleEl.style.display = combined ? 'block' : 'none';
+      }
+      if (soldEl) {
+        soldEl.textContent = sold ? 'SOLD' : '';
+        soldEl.style.display = sold ? 'block' : 'none';
+      }
     }
     lightbox.classList.add('is-open');
     document.body.style.overflow = 'hidden';
@@ -27,6 +56,7 @@
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox) close(); });
   closeBtn.addEventListener('click', close);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  document.addEventListener('contextmenu', (e) => { if (e.target.closest('img')) e.preventDefault(); });
 
   document.querySelectorAll('.gallery .artwork-frame').forEach(frame => {
     frame.style.cursor = 'pointer';
@@ -37,10 +67,14 @@
       const artwork = frame.closest('.artwork');
       const titleEl = artwork?.querySelector('.artwork-title');
       const title = (titleEl && !titleEl.classList.contains('artwork-title--hidden')) ? titleEl.textContent.trim() : '';
+      const priceEl = artwork?.querySelector('.artwork-price');
+      const price = priceEl ? priceEl.textContent.trim() : '';
+      const sold = artwork?.dataset.sold === '1' || artwork?.dataset.sold === 'true';
       const rot = frame.classList.contains('artwork-frame--rotate-cw') ? 'lightbox__img--rotate-cw' :
         frame.classList.contains('artwork-frame--rotate-180') ? 'lightbox__img--rotate-180' :
         (frame.classList.contains('artwork-frame--rotate-270') || frame.classList.contains('artwork-frame--rotate-ccw')) ? 'lightbox__img--rotate-270' : null;
-      open(im.src, rot, title);
+      const isPhotography = (im.src || '').indexOf('photography/') !== -1;
+      open(im.src, rot, title, price, sold, isPhotography);
     });
   });
 })();
@@ -198,6 +232,29 @@ function enterEditMode() {
           updateUnnamedVisibility();
         });
       }
+      const priceEl = artwork.querySelector('.artwork-price');
+      if (priceEl && gallery.id === 'artworksGallery') {
+        priceEl.contentEditable = 'true';
+        priceEl.addEventListener('blur', () => {
+          const val = priceEl.textContent.trim();
+          saveEdit(img.getAttribute('src'), 'price', val);
+          priceEl.classList.toggle('artwork-price--sold', val.toUpperCase() === 'SOLD');
+        });
+      }
+      if (gallery.id === 'artworksGallery') {
+        const soldCheck = document.createElement('label');
+        soldCheck.className = 'artwork-sold-check';
+        soldCheck.innerHTML = '<input type="checkbox" class="artwork-sold-input"> Sold';
+        const src = img.getAttribute('src');
+        const soldInput = soldCheck.querySelector('input');
+        soldInput.checked = !!artwork.dataset.sold;
+        soldInput.addEventListener('change', () => {
+          const isSold = soldInput.checked;
+          saveEdit(src, 'sold', isSold ? '1' : '0');
+          artwork.dataset.sold = isSold ? '1' : '';
+        });
+        artwork.appendChild(soldCheck);
+      }
     });
 
     document.querySelectorAll('.artwork-title--hidden').forEach(t => t.classList.remove('artwork-title--hidden'));
@@ -323,7 +380,8 @@ function exitEditMode() {
     if (g) { g.ondragstart = g.ondragend = g.ondragover = g.ondragleave = g.ondrop = null; }
   });
   updateUnnamedVisibility();
-  ['.artwork-title', '#navLogo', '#navLinkArtworks', '#navLinkPhotography', '#navLinkContact', '#footerText', '#contactLabel', '#contactEmail', '#contactBox'].forEach(sel => {
+  document.querySelectorAll('.artwork-sold-check').forEach(el => el.remove());
+  ['.artwork-title', '.artwork-price', '#navLogo', '#navLinkArtworks', '#navLinkPhotography', '#navLinkContact', '#footerText', '#contactLabel', '#contactEmail', '#contactBox'].forEach(sel => {
     document.querySelectorAll(sel).forEach(el => { if (el) el.contentEditable = 'false'; });
   });
   saveEditsToFiles();
@@ -374,8 +432,19 @@ function loadStoredEdits() {
   document.querySelectorAll('.gallery .artwork').forEach(artwork => {
     const img = artwork.querySelector('.artwork-frame img');
     const title = artwork.querySelector('.artwork-title');
-    if (img && title && edits[img.getAttribute('src')]?.title) {
-      title.textContent = edits[img.getAttribute('src')].title;
+    const priceEl = artwork.querySelector('.artwork-price');
+    const src = img?.getAttribute('src');
+    if (img && title && src && edits[src]?.title !== undefined) {
+      title.textContent = edits[src].title;
+    }
+    if (img && priceEl && src && edits[src]?.price !== undefined) {
+      priceEl.textContent = edits[src].price;
+    }
+    if (priceEl) {
+      priceEl.classList.toggle('artwork-price--sold', String(priceEl.textContent).trim().toUpperCase() === 'SOLD');
+    }
+    if (img && src) {
+      artwork.dataset.sold = edits[src]?.sold ? '1' : '';
     }
   });
 }

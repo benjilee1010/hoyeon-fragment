@@ -70,17 +70,29 @@ function applyEditsToHtml(html, edits, page) {
         titlesBySrc[key] = edits[key].title;
       }
     }
-    // Replace each article: update img alt and h3 text for matching src
-    html = html.replace(/<article class="artwork">\s*<div class="artwork-frame">\s*<img src="(artworks\/[^"]+)"[^>]*>\s*<\/div>\s*<h3[^>]*>([^<]*)<\/h3>\s*<\/article>/g, (match, src, oldTitle) => {
-      const title = titlesBySrc[src];
-      if (title === undefined) return match;
+    // Replace each article: update img alt, h3 title, price span, and data-sold
+    const pricesBySrc = {};
+    const soldBySrc = {};
+    for (const key of Object.keys(edits)) {
+      if (!specialKeys.includes(key) && edits[key]) {
+        if (edits[key].price != null) pricesBySrc[key] = edits[key].price;
+        if (edits[key].sold) soldBySrc[key] = true;
+      }
+    }
+    html = html.replace(/<article class="artwork"([^>]*)>\s*<div class="artwork-frame">\s*<img src="(artworks\/[^"]+)"[^>]*>\s*<\/div>\s*<h3[^>]*>([^<]*)<\/h3>\s*<span class="artwork-price"[^>]*>([^<]*)<\/span>\s*<\/article>/g, (match, articleExtra, src, oldTitle, oldPrice) => {
+      const title = titlesBySrc[src] !== undefined ? titlesBySrc[src] : oldTitle;
+      const price = pricesBySrc[src] !== undefined ? pricesBySrc[src] : oldPrice;
+      const sold = soldBySrc[src];
       const altAttr = title ? ` alt="${esc(title)}"` : ' alt=""';
       const hiddenClass = title === 'Unnamed' ? ' artwork-title--hidden' : '';
-      return `<article class="artwork">
+      const soldClass = String(price).trim().toUpperCase() === 'SOLD' ? ' artwork-price--sold' : '';
+      const dataSold = sold ? ' data-sold="true"' : '';
+      return `<article class="artwork"${dataSold}>
         <div class="artwork-frame">
           <img src="${src}"${altAttr}>
         </div>
         <h3 class="artwork-title${hiddenClass}">${esc(title)}</h3>
+        <span class="artwork-price${soldClass}">${esc(price)}</span>
       </article>`;
     });
 
