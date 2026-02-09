@@ -47,18 +47,20 @@ function applyEditsToHtml(html, edits, page) {
   const glob = edits.global || {};
   const cp = edits.contactPage || {};
 
-  // Nav and footer (shared)
-  html = html.replace(/(<a[^>]+id="navLogo"[^>]*>)[^<]*(<\/a>)/, `$1${esc(glob.navLogo)}$2`);
-  html = html.replace(/(<a[^>]+id="navLinkArtworks"[^>]*>)[^<]*(<\/a>)/, `$1${esc(glob.navLinkArtworks)}$2`);
-  html = html.replace(/(<a[^>]+id="navLinkPhotography"[^>]*>)[^<]*(<\/a>)/, `$1${esc(glob.navLinkPhotography)}$2`);
-  html = html.replace(/(<a[^>]+id="navLinkContact"[^>]*>)[^<]*(<\/a>)/, `$1${esc(glob.navLinkContact)}$2`);
-  html = html.replace(/(<p id="footerText"[^>]*>)[^<]*(<\/p>)/, `$1${esc(glob.footerText)}$2`);
+  // Nav and footer (shared) – only replace when we have a stored value
+  if (glob.navLogo != null) html = html.replace(/(<a[^>]+id="navLogo"[^>]*>)[^<]*(<\/a>)/, `$1${esc(glob.navLogo)}$2`);
+  if (glob.navLinkArtworks != null) html = html.replace(/(<a[^>]+id="navLinkArtworks"[^>]*>)[^<]*(<\/a>)/, `$1${esc(glob.navLinkArtworks)}$2`);
+  if (glob.navLinkPhotography != null) html = html.replace(/(<a[^>]+id="navLinkPhotography"[^>]*>)[^<]*(<\/a>)/, `$1${esc(glob.navLinkPhotography)}$2`);
+  if (glob.navLinkContact != null) html = html.replace(/(<a[^>]+id="navLinkContact"[^>]*>)[^<]*(<\/a>)/, `$1${esc(glob.navLinkContact)}$2`);
+  if (glob.footerText != null) html = html.replace(/(<p id="footerText"[^>]*>)[^<]*(<\/p>)/, `$1${esc(glob.footerText)}$2`);
 
   if (page === 'contact' && cp) {
-    html = html.replace(/(<span[^>]+id="contactLabel"[^>]*>)[^<]*(<\/span>)/, `$1${esc(cp.label)}$2`);
-    const emailEsc = esc(cp.email);
-    html = html.replace(/(<a[^>]+id="contactEmail"[^>]+href=")mailto:[^"]*("[^>]*>)[^<]*(<\/a>)/, `$1mailto:${emailEsc}$2${emailEsc}$3`);
-    html = html.replace(/(<div[^>]+id="contactBox"[^>]*>)[\s\S]*?(<\/div>)/, (m, open, close) => open + esc(cp.box) + close);
+    if (cp.label != null) html = html.replace(/(<span[^>]+id="contactLabel"[^>]*>)[^<]*(<\/span>)/, `$1${esc(cp.label)}$2`);
+    if (cp.email != null) {
+      const emailEsc = esc(cp.email);
+      html = html.replace(/(<a[^>]+id="contactEmail"[^>]+href=")mailto:[^"]*("[^>]*>)[^<]*(<\/a>)/, `$1mailto:${emailEsc}$2${emailEsc}$3`);
+    }
+    if (cp.box != null) html = html.replace(/(<div[^>]+id="contactBox"[^>]*>)[\s\S]*?(<\/div>)/, (m, open, close) => open + esc(cp.box) + close);
   }
 
   if (page === 'index' && edits) {
@@ -188,7 +190,11 @@ const server = http.createServer((req, res) => {
   serveFile(filePath, res);
 });
 
-server.listen(PORT, () => {
-  console.log(`Art site with save-to-files: http://localhost:${PORT}`);
-  console.log('Use Edit mode, then "Done editing" to write changes to HTML files.');
-});
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`Art site with save-to-files: http://localhost:${PORT}`);
+    console.log('Use Edit mode, then "Done editing" to write changes to HTML files.');
+  });
+}
+
+module.exports = { applyEditsToHtml };

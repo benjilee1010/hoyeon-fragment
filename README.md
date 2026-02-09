@@ -41,3 +41,23 @@ npx serve .
 ```
 
 Then visit `http://localhost:3000`.
+
+## Making localhost edits show on GitHub
+
+Prices, titles, and other content you edit in **Edit mode** are stored in your browser’s localStorage. To have that same content appear on the live/GitHub version, you need to write those edits into the HTML files, then commit and push.
+
+**Option A – Save server (recommended)**  
+1. Run: `npm run save-server`  
+2. Open **http://localhost:3000** in your browser.  
+3. Enter Edit mode and click **Done editing**.  
+   This sends your current edits to the server and updates `index.html`, `contact.html`, and `photography.html`.  
+4. Commit and push the updated files to GitHub.
+
+**Option B – Bake from exported edits**  
+1. On your site (localhost), open DevTools → Console.  
+2. Run:  
+   `copy(JSON.stringify(JSON.parse(localStorage.getItem('artPortfolioEdits')||'{}'), null, 2))`  
+   That copies your edits to the clipboard.  
+3. Paste into a new file named `edits.json` in the project root.  
+4. Run: `npm run bake` (or `node bake-edits.js edits.json`).  
+5. Commit and push the updated HTML files to GitHub.
